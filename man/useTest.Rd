@@ -2,12 +2,9 @@
 % Please edit documentation in R/test-files.R
 \name{useTest}
 \alias{useTest}
-\alias{useVerifiedTest}
 \title{Create or edit test files}
 \usage{
 useTest(analysis, name = NULL, open = rlang::is_interactive())
-
-useVerifiedTest(analysis, name = NULL, open = rlang::is_interactive())
 }
 \arguments{
 \item{analysis}{String name of the analysis to create a test file for (case sensitive).}

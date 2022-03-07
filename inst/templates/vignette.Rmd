@@ -1,0 +1,57 @@
+---
+title: "{{{ title }}}"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{ {{{ entry }}} }
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE, purl = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+This example shows {{{ analysis}}} from {{{ module }}}.
+
+## Data
+
+<!-- Describe here the dataset (where does it come from, what it contains, etc) -->
+
+```{r load-data, purl = TRUE}
+#> Replace the code here that loads the data into the `data` variable
+data <- data.frame(x = 1:10)
+head(data)
+```
+
+## Analysis
+
+<!-- Describe here what is the objective of the analysis (what part of the analysis is of importance) -->
+<!-- You can also display results from other analysis programs -->
+
+<!-- ### Manual results -->
+
+<!-- ### SPSS results -->
+
+
+### JASP results
+
+The analysis can be run as follows:
+
+```{r run-analysis, purl = TRUE}
+results <- {{{ module }}}::{{{ analysis }}}(data = data)
+```
+
+
+<!-- Write here unit tests -->
+
+```{r unit-tests, purl = TRUE}
+testthat::test_that("{{{ title }}} works", {
+  # jaspTools::expect_jasp_table(results[["mainTable"]])
+  # jaspTools::expect_jasp_plot (results[["mainPlot"]] )
+})
+```
