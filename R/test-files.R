@@ -15,26 +15,22 @@ NULL
 #' @rdname useTest
 #' @export
 useTest <- function(analysis, name=NULL, open = rlang::is_interactive()) {
-  .useTest(analysis, name, "consistency", open)
-}
-
-.useTest <- function(analysis, name=NULL, type = c("consistency", "verified"), open = rlang::is_interactive()) {
-  type <- match.arg(type)
+  usethis::use_directory(file.path("tests", "testthat"))
 
   if(is.null(name)) {
-    file <- sprintf("test-%1$s-%2$s.R",      type, analysis      )
+    file <- sprintf("test-%1$s.R",      analysis)
   } else {
-    file <- sprintf("test-%1$s-%2$s-%3$s.R", type, analysis, name)
+    file <- sprintf("test-%1$s-%2$s.R", analysis, name)
   }
 
   path <- file.path("tests", "testthat", file)
 
   if(!file.exists(path)) {
-    template <- switch(type,
-                       "consistency" = "consistency-test.R",
-                       "verified"    = "verified-test.R"
-                       )
-    usethis::use_template(template = template, save_as = path, open = FALSE, package = "jaspTools", data = list(analysis = analysis, name = name))
+    template <- "consistency-test.R"
+    usethis::use_template(
+      template = template, save_as = path, open = FALSE, package = "jaspTools",
+      data = list(analysis = analysis, name = name)
+      )
   }
   usethis::edit_file(usethis::proj_path(path), open = open)
 }
@@ -63,13 +59,13 @@ useTest <- function(analysis, name=NULL, open = rlang::is_interactive()) {
 useTestVignette <- function(analysis, name, title = name, open = rlang::is_interactive()) {
   usethis:::use_dependency("knitr", "Suggests")
   usethis:::use_description_field("VignetteBuilder", "knitr", overwrite = TRUE)
-  usethis::use_directory(file.path("vignettes", "tests", analysis))
+  usethis::use_directory(file.path("vignettes", "tests"))
   usethis::use_build_ignore("vignettes/tests")
   usethis::use_git_ignore("inst/doc")
 
   title <- name
   name <- tolower(gsub("[^a-zA-Z0-9_-]+", "-", name))
-  file <- paste0(analysis, "-", name, ".Rmd")
+  file <- paste0(tolower(analysis), "-", name, ".Rmd")
   path <- file.path("vignettes", "tests", file)
   if(!file.exists(path)) {
     usethis::use_template(template = "vignette.Rmd", save_as = path, open = FALSE, package = "jaspTools",
@@ -103,6 +99,7 @@ testVignette <- function(name) {
   testFile <- .makeTestVignetteFile(name)
   testthat::test_file(testFile)
   file.remove(testFile)
+  invisible()
 }
 
 #' @rdname testVignette
@@ -125,9 +122,7 @@ testVignettes <- function(analysis) {
   file   <- paste0("test-vignette-", name, ".R")
   output <- usethis::proj_path("tests", "testthat", file)
 
-  suppressMessages({
-    purl   <- knitr::purl(input = input, output = output, documentation = 1)
-  })
+  purl <- knitr::purl(input = input, output = output, documentation = 1, quiet = TRUE)
   return(purl)
 }
 
@@ -135,11 +130,11 @@ testVignettes <- function(analysis) {
   if(missing(analysis)) {
     pattern <- NULL
   } else {
-    pattern <- analysis
+    pattern <- paste0(tolower(analysis), "-")
   }
 
   path <- usethis::proj_path("vignettes", "tests")
-  files <- list.files(path, recursive = FALSE, pattern = pattern, full.names = FALSE)
+  files <- list.files(path, recursive = FALSE, pattern = pattern, full.names = FALSE, ignore.case = TRUE)
   names <- gsub(".Rmd$", "", files)
 
   testFiles <- vapply(names, .makeTestVignetteFile, character(1))

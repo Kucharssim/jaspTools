@@ -2,7 +2,7 @@
 % Please edit documentation in R/test-files.R
 \name{useTestVignette}
 \alias{useTestVignette}
-\title{Create or edit jasp vignette}
+\title{Create or edit JASP vignettes}
 \usage{
 useTestVignette(analysis, name, title = name, open = rlang::is_interactive())
 }
