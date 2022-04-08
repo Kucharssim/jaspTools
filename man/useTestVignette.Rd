@@ -16,9 +16,9 @@ useTestVignette(analysis, name, title = name, open = rlang::is_interactive())
 \item{open}{Do you want to open the file automatically in RStudio?}
 }
 \description{
-This function mimics \link[usethis]{usethis::use_article()},
-but uses a template for the vignette that is tailored for JASP style vignettes.
-This vignette then can be converted into a verified unit test.
+This function mimics \code{\link[usethis:use_vignette]{usethis::use_article()}},
+but uses a template for the vignette that is tailored for JASP-styled vignettes.
+This vignette then can be run as a verified unit test using \code{\link[=testVignette]{testVignette()}} and \code{\link[=testVignettes]{testVignettes()}}.
 }
 \details{
 Running this function configures the module to have test vignettes.
@@ -28,5 +28,5 @@ adds \code{inst/doc} folder in \code{.gitignore}, and adds \code{vignettes/tests
 
 Then, it creates a file based on the analysis name and name of the test file.
 
-\link{testVignette()} and \link{testVignettes()} can be used for testing the vignette.
+\code{\link[=testVignette]{testVignette()}} and \code{\link[=testVignettes]{testVignettes()}} can be used for testing the vignette(s).
 }

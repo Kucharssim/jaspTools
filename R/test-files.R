@@ -1,9 +1,9 @@
 #' @title Create or edit test files
 #'
-#' @description Both functions mimic \link[usethis]{usethis::use_test()}.
-#' \code{useTest()} creates a "consistency" test file,
-#' \code{useVerifiedTest()} creates a "verified" test file,
-#' meant to be converted into a vignette and a chapter in the jasp-verification-project.
+#' @description Both functions mimic [usethis::use_test()].
+#' [useTest()] creates a "consistency" test file,
+#' [useTestVignette()] creates a "verified" test file,
+#' used as a vignette and a verified unit test.
 #'
 #' @param analysis String name of the analysis to create a test file for (case sensitive).
 #' @param name String name of the test (optional).
@@ -37,9 +37,9 @@ useTest <- function(analysis, name=NULL, open = rlang::is_interactive()) {
 
 #' @title Create or edit JASP vignettes
 #'
-#' @description This function mimics \link[usethis]{usethis::use_article()},
-#' but uses a template for the vignette that is tailored for JASP style vignettes.
-#' This vignette then can be converted into a verified unit test.
+#' @description This function mimics [usethis::use_article()],
+#' but uses a template for the vignette that is tailored for JASP-styled vignettes.
+#' This vignette then can be run as a verified unit test using [testVignette()] and [testVignettes()].
 #'
 #' @details Running this function configures the module to have test vignettes.
 #' If necessary, it creates the \code{vignettes/tests} folder, adds \code{knitr} to the \code{Suggests}
@@ -48,23 +48,22 @@ useTest <- function(analysis, name=NULL, open = rlang::is_interactive()) {
 #'
 #' Then, it creates a file based on the analysis name and name of the test file.
 #'
-#' \link{testVignette()} and \link{testVignettes()} can be used for testing the vignette.
+#' [testVignette()] and [testVignettes()] can be used for testing the vignette(s).
 #'
 #' @param analysis String name of the analysis that is shown in the vignette (case sensitive).
-#' @param name String name of the test file.
 #' @param title String title of the vignette (optional).
+#' @param name String name of the test file.
 #' @param open Do you want to open the file automatically in RStudio?
 #'
 #' @export
-useTestVignette <- function(analysis, name, title = name, open = rlang::is_interactive()) {
-  usethis:::use_dependency("knitr", "Suggests")
-  usethis:::use_description_field("VignetteBuilder", "knitr", overwrite = TRUE)
-  usethis::use_directory(file.path("vignettes", "tests"))
-  usethis::use_build_ignore("vignettes/tests")
-  usethis::use_git_ignore("inst/doc")
+useTestVignette <- function(analysis, title, name = title, open = rlang::is_interactive()) {
+  setupTestVignettes()
 
-  title <- name
-  name <- tolower(gsub("[^a-zA-Z0-9_-]+", "-", name))
+  name <- name |>
+    strsplit("[^a-zA-Z0-9_-]+") |>
+    unlist() |>
+    paste(collapse = "-") |>
+    tolower()
   file <- paste0(tolower(analysis), "-", name, ".Rmd")
   path <- file.path("vignettes", "tests", file)
   if(!file.exists(path)) {
@@ -78,6 +77,27 @@ useTestVignette <- function(analysis, name, title = name, open = rlang::is_inter
   usethis::edit_file(usethis::proj_path(path), open = open)
 }
 
+setupTestVignettes <- function() {
+  setKnitrAsVignetteBuilder()
+  usethis::use_directory(file.path("vignettes", "tests"))
+  usethis::use_build_ignore("vignettes/tests")
+  usethis::use_git_ignore("inst/doc")
+}
+
+setKnitrAsVignetteBuilder <- function () {
+  usethis::use_package(package = "knitr", type = "Suggests")
+
+  name  <- "VignetteBuilder"
+  value <- "knitr"
+  curr  <- desc::desc_get(name, file = usethis::proj_get())[[1]]
+  curr  <- gsub("^\\s*|\\s*$", "", curr)
+  if (identical(curr, value)) {
+    return(invisible())
+  }
+  usethis::ui_done("Setting {usethis::ui_field(name)} field in DESCRIPTION to {usethis::ui_value(value)}")
+  desc::desc_set(name, value, file = usethis::proj_get())
+  invisible()
+}
 
 #' @title Test JASP Vignettes
 #'

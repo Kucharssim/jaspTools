@@ -1,5 +1,5 @@
 ---
-title: "{{{ title }}}"
+title: "{{{ analysis }}}: {{{ title }}}"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{ {{{ entry }}} }
@@ -7,7 +7,11 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE, purl = FALSE}
+<!-- General information about this template: -->
+<!-- Use `purl=FALSE` to disable chunks that are not necessary for unit testing using testVignettes() -->
+
+
+```{r, include=FALSE, purl=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -16,42 +20,69 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-This example shows {{{ analysis}}} from {{{ module }}}.
+This example shows results from `{{{ analysis }}}()` and compares them to results obtained using alternative approaches.
+
+<!-- Describe here what is the objective of the analysis (what part of the analysis is of importance) -->
 
 ## Data
 
 <!-- Describe here the dataset (where does it come from, what it contains, etc) -->
 
-```{r load-data, purl = TRUE}
-#> Replace the code here that loads the data into the `data` variable
+The data set can be obtained in R as follows:
+
+```{r load-data}
+#> Replace the code here to load the data into the `data`.
 data <- data.frame(x = 1:10)
-head(data)
+```
+
+And the data looks like:
+
+```{r show-data, purl=FALSE, eval=TRUE, echo=FALSE}
+knitr::kable(x = head(data), caption = "First five rows of the data set.")
 ```
 
 ## Analysis
 
-<!-- Describe here what is the objective of the analysis (what part of the analysis is of importance) -->
-<!-- You can also display results from other analysis programs -->
+<!-- Display results from other analysis programs, and run the JASP analysis here -->
 
 <!-- ### Manual results -->
 
 <!-- ### SPSS results -->
 
+<!-- Screenshots can be added as follows: -->
+<!-- ![Results from SPSS](path/to/the/screenshot.png){#id .class width=50%} -->
+
+
+### Results using R
+
+```{r run-r-analysis, purl=FALSE}
+#> Add code below to show how to run the analysis in R (without using {{{ module }}}::{{{ analysis }}}())
+#> Alternatively, disable this section in case the analysis cannot be easily conducted in R without JASP.
+```
 
 ### JASP results
 
 The analysis can be run as follows:
 
-```{r run-analysis, purl = TRUE}
+```{r run-jasp-analysis}
+#> Modify the code below to run the analysis
+set.seed(1)
 results <- {{{ module }}}::{{{ analysis }}}(data = data)
 ```
 
+And the relevant output is:
+
+```{r show-jasp-results, purl=FALSE}
+#> Add code here to display the correct output, for example:
+#> knitr::kable(results[["mainTable"]])
+```
 
 <!-- Write here unit tests -->
 
-```{r unit-tests, purl = TRUE}
+```{r unit-tests, include=FALSE}
 testthat::test_that("{{{ title }}} works", {
-  # jaspTools::expect_jasp_table(results[["mainTable"]])
-  # jaspTools::expect_jasp_plot (results[["mainPlot"]] )
+  #> Add code here to specify the tests, for example:
+  #> jaspTools::expect_jasp_table(results[["mainTable"]])
+  #> jaspTools::expect_jasp_plot (results[["mainPlot"]] )
 })
 ```

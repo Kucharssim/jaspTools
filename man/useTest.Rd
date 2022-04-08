@@ -14,8 +14,8 @@ useTest(analysis, name = NULL, open = rlang::is_interactive())
 \item{open}{Do you want to open the file automatically in RStudio?}
 }
 \description{
-Both functions mimic \link[usethis]{usethis::use_test()}.
-\code{useTest()} creates a "consistency" test file,
-\code{useVerifiedTest()} creates a "verified" test file,
-meant to be converted into a vignette and a chapter in the jasp-verification-project.
+Both functions mimic \code{\link[usethis:use_r]{usethis::use_test()}}.
+\code{\link[=useTest]{useTest()}} creates a "consistency" test file,
+\code{\link[=useTestVignette]{useTestVignette()}} creates a "verified" test file,
+used as a vignette and a verified unit test.
 }
