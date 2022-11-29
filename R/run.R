@@ -67,12 +67,12 @@ runAnalysis <- function(name, dataset, options, view = TRUE, quiet = FALSE, make
       stop("Please supply an analysis name")
   }
 
+  if(!quiet) emitLegacyRngWarning()
+
   if (insideTestEnvironment()) {
     view  <- FALSE
     quiet <- TRUE
   }
-
-  if(!quiet) emitLegacyRngWarning()
 
   oldWd       <- getwd()
   oldLang     <- Sys.getenv("LANG")

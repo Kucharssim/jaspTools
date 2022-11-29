@@ -301,8 +301,10 @@ emitLegacyRngWarning <- function() {
     "To use the current ", cli::code_highlight(expression(RNGkind())), " settings instead, use ", cli::code_highlight(expression(options(jaspLegacyRngKind = FALSE))), "."
   )
   footer  <- crayon::silver("This warning is displayed once every 8 hours.")
-  rlang::warning_cnd(
+  wrn <-rlang::warning_cnd(
     class = "jaspToolsWarning",
     message = message, footer = footer
   )
+  warning(wrn)
+  return()
 }
