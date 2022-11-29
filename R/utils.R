@@ -287,3 +287,22 @@ getGithubHeader <- function() {
   httr::add_headers(Authorization = sprintf("token %s", pat),
                     Accept = "application/vnd.github.golden-comet-preview+json")
 }
+
+warningsEnv <- list2env(list(legacyRng = NULL))
+
+emitLegacyRngWarning <- function() {
+  # Do not emit this warning repeatedly within 8 hours, or if legacy rng is explicitly disabled.
+  tooEarly <- isTRUE((Sys.time() - warningsEnv[["legacyRng"]]) < (8 * 60 * 60))
+  if(tooEarly || isFALSE(.Options[["jaspLegacyRngKind"]])) return()
+
+  warningsEnv[["legacyRng"]] <- Sys.time()
+  message <- cli::format_inline(
+    "Legacy ", cli::code_highlight(expression(RNGkind(sample.kind = 'Rounding'))), " is used by default. ",
+    "To use the current ", cli::code_highlight(expression(RNGkind())), " settings instead, use ", cli::code_highlight(expression(options(jaspLegacyRngKind = FALSE))), "."
+  )
+  footer  <- crayon::silver("This warning is displayed once every 8 hours.")
+  rlang::warning_cnd(
+    class = "jaspToolsWarning",
+    message = message, footer = footer
+  )
+}

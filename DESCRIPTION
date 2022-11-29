@@ -9,6 +9,8 @@ License: GNU General Public License
 Encoding: UTF-8
 LazyData: true
 Imports:
+  cli,
+  crayon,
   data.table,
   httr,
   jsonlite,
@@ -16,6 +18,7 @@ Imports:
   pkgload,
   remotes,
   rjson,
+  rlang,
   stringi,
   stringr,
   testthat (>= 3.0.3),
