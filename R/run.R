@@ -97,7 +97,7 @@ runAnalysis <- function(name, dataset, options, view = TRUE, quiet = FALSE, make
 #   }
 
 
-  jaspResultsCPP        <- loadJaspResults(args$name)
+  jaspResultsCPP        <- jaspBase:::loadJaspResults(args$name)
   jaspResultsCPP$title  <- args$title
   jaspResults           <- jaspResultsR$new(jaspResultsCPP)
 
