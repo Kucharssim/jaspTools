@@ -93,7 +93,7 @@ runAnalysis <- function(name, dataset, options, view = TRUE, quiet = FALSE, make
     returnVal <- suppressWarnings(do.call(jaspBase::runJaspResults, args))
     sink(NULL)
   } else {
-    returnVal <- do.call(jaspBase::runJaspResults, args)
+    # returnVal <- do.call(jaspBase::runJaspResults, args)
   }
 
   # always TRUE after jaspResults is merged into jaspBase
