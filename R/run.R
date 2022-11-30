@@ -82,7 +82,6 @@ runAnalysis <- function(name, dataset, options, view = TRUE, quiet = FALSE, make
     setwd(oldWd)
     Sys.setenv(LANG = oldLang)
     Sys.setenv(LANGUAGE = oldLanguage)
-    emitLegacyRngWarning()
   })
 
   initAnalysisRuntime(dataset = dataset, makeTests = makeTests)
@@ -140,6 +139,10 @@ fetchRunArgs <- function(name, options) {
 initAnalysisRuntime <- function(dataset, makeTests, ...) {
   # first we reinstall any changed modules in the personal library
   reinstallChangedModules()
+
+  emitLegacyRngWarning()
+  message("this is a message")
+  warning("this is a warning")
 
   # dataset to be found in the analysis when it needs to be read
   .setInternal("dataset", dataset)
