@@ -86,16 +86,16 @@ runAnalysis <- function(name, dataset, options, view = TRUE, quiet = FALSE, make
 
   initAnalysisRuntime(dataset = dataset, makeTests = makeTests)
   args <- fetchRunArgs(name, options)
-  #
-  # if (quiet) {
-  #   # sink(tempfile())
-  #   # on.exit({suppressWarnings(sink(NULL))}, add = TRUE)
-  #   returnVal <- suppressWarnings(do.call(jaspBase::runJaspResults, args))
-  #   sink(NULL)
-  # } else {
-  #   returnVal <- do.call(jaspBase::runJaspResults, args)
-  # }
-  #
+
+  if (quiet) {
+    # sink(tempfile())
+    # on.exit({suppressWarnings(sink(NULL))}, add = TRUE)
+    returnVal <- suppressWarnings(do.call(jaspBase::runJaspResults, args))
+    sink(NULL)
+  } else {
+    returnVal <- do.call(jaspBase::runJaspResults, args)
+  }
+
   # # always TRUE after jaspResults is merged into jaspBase
   # jsonResults <- if (inherits(returnVal, c("jaspResultsR", "R6"))) {
   #   getJsonResultsFromJaspResults(returnVal)
