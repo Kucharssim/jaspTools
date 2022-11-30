@@ -84,8 +84,8 @@ runAnalysis <- function(name, dataset, options, view = TRUE, quiet = FALSE, make
     Sys.setenv(LANGUAGE = oldLanguage)
   })
 
-  # initAnalysisRuntime(dataset = dataset, makeTests = makeTests)
-  # args <- fetchRunArgs(name, options)
+  initAnalysisRuntime(dataset = dataset, makeTests = makeTests)
+  args <- fetchRunArgs(name, options)
   #
   # if (quiet) {
   #   # sink(tempfile())
