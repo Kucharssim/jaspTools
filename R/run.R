@@ -99,7 +99,7 @@ runAnalysis <- function(name, dataset, options, view = TRUE, quiet = FALSE, make
 
   jaspResultsCPP        <- jaspBase:::loadJaspResults(args$name)
   jaspResultsCPP$title  <- args$title
-  jaspResults           <- jaspResultsR$new(jaspResultsCPP)
+  jaspResults           <- jaspBase:::jaspResultsR$new(jaspResultsCPP)
 
   jaspResultsCPP$setOptions(args$options)
 
