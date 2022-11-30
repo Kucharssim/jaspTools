@@ -306,5 +306,6 @@ emitLegacyRngWarning <- function() {
     message = message, footer = footer
   )
   warning(wrn)
+  message(wrn)
   return()
 }
