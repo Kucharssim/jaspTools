@@ -67,8 +67,6 @@ runAnalysis <- function(name, dataset, options, view = TRUE, quiet = FALSE, make
   #     stop("Please supply an analysis name")
   # }
 
-  emitLegacyRngWarning()
-
   if (insideTestEnvironment()) {
     view  <- FALSE
     quiet <- TRUE
@@ -95,6 +93,7 @@ runAnalysis <- function(name, dataset, options, view = TRUE, quiet = FALSE, make
   } else {
     returnVal <- do.call(jaspBase::runJaspResults, args)
   }
+  emitLegacyRngWarning()
 
   # always TRUE after jaspResults is merged into jaspBase
   # jsonResults <- if (inherits(returnVal, c("jaspResultsR", "R6"))) {
