@@ -93,6 +93,7 @@ runAnalysis <- function(name, dataset, options, view = TRUE, quiet = FALSE, make
   } else {
     returnVal <- do.call(jaspBase::runJaspResults, args)
   }
+  message("emit legacy warning")
   emitLegacyRngWarning()
 
   # always TRUE after jaspResults is merged into jaspBase
