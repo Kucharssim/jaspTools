@@ -97,11 +97,11 @@ runAnalysis <- function(name, dataset, options, view = TRUE, quiet = FALSE, make
   }
 
   # always TRUE after jaspResults is merged into jaspBase
-  jsonResults <- if (inherits(returnVal, c("jaspResultsR", "R6"))) {
-    getJsonResultsFromJaspResults(returnVal)
-  } else {
-    getJsonResultsFromJaspResultsLegacy()
-  }
+  # jsonResults <- if (inherits(returnVal, c("jaspResultsR", "R6"))) {
+  #   getJsonResultsFromJaspResults(returnVal)
+  # } else {
+  #   getJsonResultsFromJaspResultsLegacy()
+  # }
 
   transferPlotsFromjaspResults()
 
