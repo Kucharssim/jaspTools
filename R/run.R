@@ -55,19 +55,19 @@
 #'
 #' @export runAnalysis
 runAnalysis <- function(name, dataset, options, view = TRUE, quiet = FALSE, makeTests = FALSE) {
-  if (is.list(options) && is.null(names(options)) && any(names(unlist(lapply(options, attributes))) == "analysisName"))
-    stop("The provided list of options is not named. Did you mean to index in the options list (e.g., options[[1]])?")
+  # if (is.list(options) && is.null(names(options)) && any(names(unlist(lapply(options, attributes))) == "analysisName"))
+  #   stop("The provided list of options is not named. Did you mean to index in the options list (e.g., options[[1]])?")
+  #
+  # if (!is.list(options) || is.null(names(options)))
+  #   stop("The options should be a named list (you can obtain it through `analysisOptions()`")
+  #
+  # if (missing(name)) {
+  #   name <- attr(options, "analysisName")
+  #   if (is.null(name))
+  #     stop("Please supply an analysis name")
+  # }
 
-  if (!is.list(options) || is.null(names(options)))
-    stop("The options should be a named list (you can obtain it through `analysisOptions()`")
-
-  if (missing(name)) {
-    name <- attr(options, "analysisName")
-    if (is.null(name))
-      stop("Please supply an analysis name")
-  }
-
-  # if(!quiet) emitLegacyRngWarning()
+  emitLegacyRngWarning()
 
   if (insideTestEnvironment()) {
     view  <- FALSE
@@ -84,27 +84,28 @@ runAnalysis <- function(name, dataset, options, view = TRUE, quiet = FALSE, make
     Sys.setenv(LANGUAGE = oldLanguage)
   })
 
-  initAnalysisRuntime(dataset = dataset, makeTests = makeTests)
-  args <- fetchRunArgs(name, options)
-
-  if (quiet) {
-    # sink(tempfile())
-    # on.exit({suppressWarnings(sink(NULL))}, add = TRUE)
-    returnVal <- suppressWarnings(do.call(jaspBase::runJaspResults, args))
-    sink(NULL)
-  } else {
-    returnVal <- do.call(jaspBase::runJaspResults, args)
-  }
-
-  # always TRUE after jaspResults is merged into jaspBase
-  jsonResults <- if (inherits(returnVal, c("jaspResultsR", "R6"))) {
-    getJsonResultsFromJaspResults(returnVal)
-  } else {
-    getJsonResultsFromJaspResultsLegacy()
-  }
-
-  transferPlotsFromjaspResults()
-
+  # initAnalysisRuntime(dataset = dataset, makeTests = makeTests)
+  # args <- fetchRunArgs(name, options)
+  #
+  # if (quiet) {
+  #   # sink(tempfile())
+  #   # on.exit({suppressWarnings(sink(NULL))}, add = TRUE)
+  #   returnVal <- suppressWarnings(do.call(jaspBase::runJaspResults, args))
+  #   sink(NULL)
+  # } else {
+  #   returnVal <- do.call(jaspBase::runJaspResults, args)
+  # }
+  #
+  # # always TRUE after jaspResults is merged into jaspBase
+  # jsonResults <- if (inherits(returnVal, c("jaspResultsR", "R6"))) {
+  #   getJsonResultsFromJaspResults(returnVal)
+  # } else {
+  #   getJsonResultsFromJaspResultsLegacy()
+  # }
+  #
+  # transferPlotsFromjaspResults()
+  #
+  jsonResults <- "{\n\t\"results\" : \n\t{\n\t\t\".meta\" : \n\t\t[\n\t\t\t{\n\t\t\t\t\"info\" : \"\",\n\t\t\t\t\"meta\" : \n\t\t\t\t[\n\t\t\t\t\t{\n\t\t\t\t\t\t\"info\" : \"\",\n\t\t\t\t\t\t\"name\" : \"ttestContainer_ttestTable\",\n\t\t\t\t\t\t\"title\" : \"Bayesian One Sample T-Test\",\n\t\t\t\t\t\t\"type\" : \"table\"\n\t\t\t\t\t}\n\t\t\t\t],\n\t\t\t\t\"name\" : \"ttestContainer\",\n\t\t\t\t\"title\" : \"\",\n\t\t\t\t\"type\" : \"collection\"\n\t\t\t}\n\t\t],\n\t\t\"name\" : \"\",\n\t\t\"ttestContainer\" : \n\t\t{\n\t\t\t\"collection\" : \n\t\t\t{\n\t\t\t\t\"ttestContainer_ttestTable\" : \n\t\t\t\t{\n\t\t\t\t\t\"casesAcrossColumns\" : false,\n\t\t\t\t\t\"citation\" : \n\t\t\t\t\t[\n\t\t\t\t\t\t\"Morey, R. D., & Rouder, J. N. (2015). BayesFactor (Version 0.9.11-3)[Computer software].\",\n\t\t\t\t\t\t\"Rouder, J. N., Speckman, P. L., Sun, D., Morey, R. D., & Iverson, G. (2009). Bayesian t tests for accepting and rejecting the null hypothesis. Psychonomic Bulletin & Review, 16, 225-237.\"\n\t\t\t\t\t],\n\t\t\t\t\t\"data\" : \n\t\t\t\t\t[\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"BF\" : 1.324506706413386,\n\t\t\t\t\t\t\t\"error\" : 6.2249751929841857e-05,\n\t\t\t\t\t\t\t\"n1\" : 23.0,\n\t\t\t\t\t\t\t\"pValue\" : 0.015654342509862966,\n\t\t\t\t\t\t\t\"t\" : 2.2999999999999998\n\t\t\t\t\t\t}\n\t\t\t\t\t],\n\t\t\t\t\t\"footnotes\" : \n\t\t\t\t\t[\n\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\"cols\" : null,\n\t\t\t\t\t\t\t\"myOrder\" : 0,\n\t\t\t\t\t\t\t\"rows\" : null,\n\t\t\t\t\t\t\t\"symbol\" : \"<em>Note.</em>\",\n\t\t\t\t\t\t\t\"text\" : \"For all tests, the alternative hypothesis specifies that the mean is greater than 0.\"\n\t\t\t\t\t\t}\n\t\t\t\t\t],\n\t\t\t\t\t\"name\" : \"ttestContainer_ttestTable\",\n\t\t\t\t\t\"overTitle\" : false,\n\t\t\t\t\t\"schema\" : \n\t\t\t\t\t{\n\t\t\t\t\t\t\"fields\" : \n\t\t\t\t\t\t[\n\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\"format\" : \"sf:4;dp:3\",\n\t\t\t\t\t\t\t\t\"name\" : \"t\",\n\t\t\t\t\t\t\t\t\"title\" : \"t\",\n\t\t\t\t\t\t\t\t\"type\" : \"number\"\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\"name\" : \"n1\",\n\t\t\t\t\t\t\t\t\"title\" : \"n\",\n\t\t\t\t\t\t\t\t\"type\" : \"integer\"\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\"format\" : \"sf:4;dp:3\",\n\t\t\t\t\t\t\t\t\"name\" : \"BF\",\n\t\t\t\t\t\t\t\t\"title\" : \"Log(BF\\u208a\\u2080)\",\n\t\t\t\t\t\t\t\t\"type\" : \"number\"\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\"format\" : \"sf:4;dp:3\",\n\t\t\t\t\t\t\t\t\"name\" : \"error\",\n\t\t\t\t\t\t\t\t\"title\" : \"error %\",\n\t\t\t\t\t\t\t\t\"type\" : \"number\"\n\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\"format\" : \"dp:3;p:.001\",\n\t\t\t\t\t\t\t\t\"name\" : \"pValue\",\n\t\t\t\t\t\t\t\t\"title\" : \"p\",\n\t\t\t\t\t\t\t\t\"type\" : \"pvalue\"\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t]\n\t\t\t\t\t},\n\t\t\t\t\t\"status\" : \"complete\",\n\t\t\t\t\t\"title\" : \"Bayesian One Sample T-Test\"\n\t\t\t\t}\n\t\t\t},\n\t\t\t\"initCollapsed\" : false,\n\t\t\t\"name\" : \"ttestContainer\",\n\t\t\t\"title\" : \"\"\n\t\t}\n\t},\n\t\"status\" : \"complete\",\n\t\"typeRequest\" : \"analysis\"\n}\n"
   results <- processJsonResults(jsonResults)
 
   if (insideTestEnvironment())
@@ -117,6 +118,11 @@ runAnalysis <- function(name, dataset, options, view = TRUE, quiet = FALSE, make
     makeUnitTestsFromResults(results, name, dataset, options)
 
   return(invisible(results))
+}
+
+foo <- function() {
+  emitLegacyRngWarning()
+  return(invisible(TRUE))
 }
 
 fetchRunArgs <- function(name, options) {
@@ -139,10 +145,6 @@ fetchRunArgs <- function(name, options) {
 initAnalysisRuntime <- function(dataset, makeTests, ...) {
   # first we reinstall any changed modules in the personal library
   reinstallChangedModules()
-
-  emitLegacyRngWarning()
-  message("this is a message")
-  warning("this is a warning")
 
   # dataset to be found in the analysis when it needs to be read
   .setInternal("dataset", dataset)

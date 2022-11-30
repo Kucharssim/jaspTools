@@ -292,8 +292,8 @@ warningsEnv <- list2env(list(legacyRng = NULL))
 
 emitLegacyRngWarning <- function() {
   # Do not emit this warning repeatedly within 8 hours, or if legacy rng is explicitly disabled.
-  tooEarly <- isTRUE((Sys.time() - warningsEnv[["legacyRng"]]) < (8 * 60 * 60))
-  if(tooEarly || isFALSE(.Options[["jaspLegacyRngKind"]])) return()
+  # tooEarly <- isTRUE((Sys.time() - warningsEnv[["legacyRng"]]) < (8 * 60 * 60))
+  # if(tooEarly || isFALSE(.Options[["jaspLegacyRngKind"]])) return()
 
   warningsEnv[["legacyRng"]] <- Sys.time()
   message <- cli::format_inline(
@@ -306,6 +306,5 @@ emitLegacyRngWarning <- function() {
     message = message, footer = footer
   )
   warning(wrn)
-  message(wrn)
   return()
 }
