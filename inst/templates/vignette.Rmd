@@ -8,8 +8,8 @@ vignette: >
 ---
 
 <!-- General information about this template: -->
-<!-- Use `purl=FALSE` to disable chunks that are not necessary for unit testing using testVignettes() -->
-
+<!-- Use `purl=FALSE` to disable code chunks that *are not* necessary for unit testing but you *want* to display them in the vignette -->
+<!-- Use `include=FALSE` to disable code chunks that *are* necessary for unit testing but you *do not want* to display them in the vignette -->
 
 ```{r, include=FALSE, purl=FALSE}
 knitr::opts_chunk$set(
@@ -81,6 +81,7 @@ And the relevant output is:
 
 ```{r unit-tests, include=FALSE}
 testthat::test_that("{{{ title }}} works", {
+  testthat::local_edition(3)
   #> Add code here to specify the tests, for example:
   #> jaspTools::expect_jasp_table(results[["mainTable"]])
   #> jaspTools::expect_jasp_plot (results[["mainPlot"]] )

@@ -123,6 +123,30 @@ testAll <- function(onlyPlots = FALSE) {
   return(invisible(status))
 }
 
+#' Test all analyses in the currently active module.
+#'
+#' Tests all R analyses found under modules/tests/testthat. Useful to perform before making
+#' a pull request, to prevent failing builds.
+#'
+#' @param vignettes Would you like to test vignettes as well?
+#'
+#' @export testModule
+testModule <- function(vignettes=TRUE) {
+  if (vignettes) {
+    vignetteFiles <- .makeTestVignetteFiles()
+    on.exit(file.remove(vignetteFiles))
+  }
+
+  results <- try(testthat::test_local() |> as.data.frame())
+  if (inherits(results, "try-error") || (sum(results$failed) > 0 || sum(results$error) > 0)) {
+    status <- 1
+  } else {
+    status <- 0
+  }
+
+  return(invisible(status))
+}
+
 #' Visually inspect failed test plots.
 #'
 #' This function is a wrapper around \code{testthat::snapshot_review()}. It allows

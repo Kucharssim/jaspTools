@@ -1,0 +1,28 @@
+---
+title: "Verified testing using vignettes"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Verified testing using vignettes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  collapse = TRUE
+)
+```
+
+```{r setup, echo=FALSE}
+library(jaspTools)
+```
+
+The R syntax project for JASP brings new possibilities for making JASP more user friendly. JASP's core values are transparency and correctness of the code. Correctness is verified using automatic tests that are run any time that the R code that delivers the results is updated. For that, we have implemented many tests in our modules using the `testthat` framework. However, over time we realised that many of the tests we have in our codebase test the *consistency* of our results, but not necessarily their *correctness*. This is because verifying results againsts existing literature or other software packages is a lot of work, and therefore many of the tests were written with mock data just to make sure that the code runs, but not whether the results made sense in the first place.
+
+To remedy this problem, a results verification project was created, where we compiled a large collection of examples which document that JASP produces correct output.
+
+
+
+
+

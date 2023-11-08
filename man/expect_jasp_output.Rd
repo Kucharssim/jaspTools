@@ -6,14 +6,14 @@
 \alias{expect_jasp_plot}
 \title{JASP Snapshot Testing}
 \usage{
-expect_jasp_table(x, tolerance = testthat::testthat_tolerance())
+expect_jasp_table(x, digits = 10)
 
 expect_jasp_plot(x, name)
 }
 \arguments{
 \item{x}{Code to evaluate.}
 
-\item{tolerance}{Numerical tolerance; any differences (in the sense of \code{\link[base:all.equal]{base::all.equal()}}) smaller than this value will be ignored.}
+\item{digits}{Numerical tolerance; any differences (in the sense of \code{\link[base:all.equal]{base::all.equal()}}) smaller than this value will be ignored.}
 
 \item{name}{The name of the reference plot (a .svg stored in \code{/tests/testthat/_snaps}).}
 }

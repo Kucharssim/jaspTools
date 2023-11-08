@@ -126,7 +126,7 @@ testVignette <- function(name) {
 #' @export
 testVignettes <- function(analysis) {
   testFiles <- .makeTestVignetteFiles(analysis)
-  results <- testthat::test_local(filter = "vignette-")
+  results <- testthat::test_local(filter = "vignette-") |> as.data.frame()
 
   for(file in testFiles) {
     file.remove(file)
@@ -150,12 +150,13 @@ testVignettes <- function(analysis) {
   if(missing(analysis)) {
     pattern <- NULL
   } else {
-    pattern <- paste0(tolower(analysis), "-")
+    pattern <- paste0("^", tolower(analysis), "-")
   }
 
   path <- usethis::proj_path("vignettes", "tests")
   files <- list.files(path, recursive = FALSE, pattern = pattern, full.names = FALSE, ignore.case = TRUE)
-  names <- gsub(".Rmd$", "", files)
+  if(length(files) == 0) return(files)
+  names <- gsub(".Rmd$", "", files, ignore.case = TRUE)
 
   testFiles <- vapply(names, .makeTestVignetteFile, character(1))
 

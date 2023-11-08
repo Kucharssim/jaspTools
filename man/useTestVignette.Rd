@@ -4,14 +4,14 @@
 \alias{useTestVignette}
 \title{Create or edit JASP vignettes}
 \usage{
-useTestVignette(analysis, name, title = name, open = rlang::is_interactive())
+useTestVignette(analysis, title, name = title, open = rlang::is_interactive())
 }
 \arguments{
 \item{analysis}{String name of the analysis that is shown in the vignette (case sensitive).}
 
-\item{name}{String name of the test file.}
-
 \item{title}{String title of the vignette (optional).}
+
+\item{name}{String name of the test file.}
 
 \item{open}{Do you want to open the file automatically in RStudio?}
 }
