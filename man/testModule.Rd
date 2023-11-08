@@ -2,7 +2,7 @@
 % Please edit documentation in R/test.R
 \name{testModule}
 \alias{testModule}
-\title{Test all analyses in the currently monitored modules.}
+\title{Test all analyses in the currently active module.}
 \usage{
 testModule(vignettes = TRUE)
 }

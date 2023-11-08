@@ -7,22 +7,81 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
+```{r, include=FALSE, message=FALSE}
 knitr::opts_chunk$set(
   echo = FALSE,
   collapse = TRUE
 )
 ```
 
-```{r setup, echo=FALSE}
+```{r setup, echo=FALSE, message=FALSE}
 library(jaspTools)
 ```
 
-The R syntax project for JASP brings new possibilities for making JASP more user friendly. JASP's core values are transparency and correctness of the code. Correctness is verified using automatic tests that are run any time that the R code that delivers the results is updated. For that, we have implemented many tests in our modules using the `testthat` framework. However, over time we realised that many of the tests we have in our codebase test the *consistency* of our results, but not necessarily their *correctness*. This is because verifying results againsts existing literature or other software packages is a lot of work, and therefore many of the tests were written with mock data just to make sure that the code runs, but not whether the results made sense in the first place.
+## Introduction
 
-To remedy this problem, a results verification project was created, where we compiled a large collection of examples which document that JASP produces correct output.
+The R syntax project for JASP brings new possibilities for making JASP more user friendly. JASP's core values are transparency and correctness of the code. Correctness is verified using automatic testing to ensure that updating the code or dependencies do not break the analysis. Over the years we have implemented many tests in our modules using the `testthat` framework. However, many of the tests we have in our codebase test the *consistency* of our results, but not necessarily their *correctness*. This is because verifying results against existing literature or other software packages is a lot of work, and therefore many of the tests were written with mock data just to make sure that the code continues running, but not whether the results made sense in the first place.
 
+To remedy this problem, a results verification project was created, where we compiled a large collection of examples which document that JASP produces correct output. However, this setup takes a lot of effort to maintain, as effectively the materials associated with results verification are disconnected from the code base that produce them; in order to actually use these results we manually maintain implement them in the "test-verified-*.R" test files. So we ended up with another problem, by having to maintain these verified results in two different places.
 
+What we need is to setup a workflow for verified tests which allows us to compile human readable verification reports. These reports may contain background information about the data, original analysis, output from other software packages (SPSS and others), custom calculations in R, and crucially the output from JASP. However, these documents should be also runnable within our testing environment -- without any further manual modification -- so that results that are shown in the verification reports are also those results that are used in our continuous integration pipelines.
 
+With the R syntax, this will be possible. JASP analyses can be called directly in R with user-friendly functions and the output is human readable. Therefore, a natural approach to writing verification reports is to simply write files in `rmarkdown` files. These files can be compiled into human readable documents. The documents serve these purposes:
 
+1. Verification that the results from JASP are correct by comparing them to sources in literature and other software packages.
+
+2. Documentation of the JASP syntax in R.
+
+Naturally, this leads us to the fact that we can use these files as `vignettes` inside of a jaspModule. With `pkgdown` we can publish the package documentation online and include these verification reports there as well.
+
+The only thing left is to turn these vignettes into tests. `jaspTools` will provide new functionality for creating and maintaining specialized "test vignette" files which can be run as test files in our testing framework.
+
+To illustrate this functionality, we will create a test vignette for the module `jaspTTests`.
+
+## Implement a verified test vignette
+
+Here we will implement a test vignette for an independent samples $t$-test analysis from the `jaspTTests` module. You can access the compiled vignette [here](https://kucharssim.github.io/jaspTTests/articles/tests/independentsamplesttest-welch-t-test-example-by-hays-1974.html).
+
+*Note.* The R syntax project will implement wrappers that will make it easy to run a JASP analysis in R. However, this is not yet implemented and so first we pretend that such wrapper is already in place and implement a mock function that approximates how such a wrapper will behave:
+
+```r
+#' Independent Samples T-test
+#'
+#' @description Conduct a classical independent samples t-test.
+#'
+#' @param data Data frame containing the data.
+#' @param dependent Character vector. Specify the columns that contain the dependent variable.
+#' @param groupBy Character. Specify the grouping variable.
+#'
+#' @examples
+#' independentSamplesTTest(data = sleep, dependent = "extra", groupBy = "group")
+#' @export
+independentSamplesTTest <- function(data, dependent, groupBy) {
+  ttest <- data.frame(dependent = dependent, t = NA, df = NA, p = NA)
+  for(dep in dependent) {
+    formula <- as.formula(paste(dep, groupBy, sep = "~"))
+    res <- t.test(formula, data)
+    ttest[ttest$dependent == dep, "t"]  <- res[["statistic"]]
+    ttest[ttest$dependent == dep, "df"] <- res[["parameter"]]
+    ttest[ttest$dependent == dep, "p"]  <- res[["p.value"]]
+  }
+
+  return(list(ttest = ttest))
+}
+```
+
+This is a very simple function that accepts a `data.frame` as input, a `character` with the dependent variable(s), and a `factor` that indicates membership to one of the two independent groups. It outputs a simple `list` with a single element `ttest` that contains the "main" table from the JASP analysis.
+
+Now we would like to create a test vignette that verifies whether the `independentSamplesTTest` analysis returns correct output. To do that, `jaspTools` provides the following function which sets up a folder in `vignettes/tests/` and creates a new `.Rmd` file. This `.Rmd` file is generated using a template that prepares the vignette with some content suitable for generating the test vignettes.
+
+```r
+jaspTools::useTestVignette(
+  analysis = "independentSamplesTTest", 
+  title = "Welch t-test example by Hays (1974)"
+  )
+```
+
+If run interactively in R studio, the file should be automatically opened in a new source code tab. In case the example already exists, it will not overwrite the file but open whatever content it has.
+
+A freshly created vignette looks something like this
 
