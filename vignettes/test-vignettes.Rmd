@@ -18,23 +18,30 @@ knitr::opts_chunk$set(
 library(jaspTools)
 ```
 
+## Warning
+
+This vignette describes a proposal for using test vignettes. This is not yet implemented properly, will not work with the current JASP modules, and likely will change depending on the development of the R syntax in JASP.
+
 ## Introduction
 
 The R syntax project for JASP brings new possibilities for making JASP more user friendly. JASP's core values are transparency and correctness of the code. Correctness is verified using automatic testing to ensure that updating the code or dependencies do not break the analysis. Over the years we have implemented many tests in our modules using the `testthat` framework. However, many of the tests we have in our codebase test the *consistency* of our results, but not necessarily their *correctness*. This is because verifying results against existing literature or other software packages is a lot of work, and therefore many of the tests were written with mock data just to make sure that the code continues running, but not whether the results made sense in the first place.
 
-To remedy this problem, a results verification project was created, where we compiled a large collection of examples which document that JASP produces correct output. However, this setup takes a lot of effort to maintain, as effectively the materials associated with results verification are disconnected from the code base that produce them; in order to actually use these results we manually maintain implement them in the "test-verified-*.R" test files. So we ended up with another problem, by having to maintain these verified results in two different places.
+To remedy this problem, a results [verification project](https://jasp-stats.github.io/jasp-verification-project/) was created, where we compiled a large collection of examples which document that JASP produces correct output. However, this setup takes a lot of effort to maintain, as effectively the materials associated with results verification are disconnected from the code base that produce them; in order to actually use these results we manually maintain implement them in the "test-verified-*.R" test files. So we ended up with another problem, by having to maintain these verified results in two different places.
 
 What we need is to setup a workflow for verified tests which allows us to compile human readable verification reports. These reports may contain background information about the data, original analysis, output from other software packages (SPSS and others), custom calculations in R, and crucially the output from JASP. However, these documents should be also runnable within our testing environment -- without any further manual modification -- so that results that are shown in the verification reports are also those results that are used in our continuous integration pipelines.
 
-With the R syntax, this will be possible. JASP analyses can be called directly in R with user-friendly functions and the output is human readable. Therefore, a natural approach to writing verification reports is to simply write files in `rmarkdown` files. These files can be compiled into human readable documents. The documents serve these purposes:
+With the R syntax, this will be possible. JASP analyses can be called directly in R with user-friendly functions and the output is human readable. Therefore, a natural approach to writing verification reports is to simply write files in `rmarkdown` files. These files can be compiled into human readable documents. The only thing left is to turn these vignettes into automatic tests. `jaspTools` will provide new functionality for creating and maintaining specialized "test vignette" files which can be run as test files in our testing framework.
+
+The test vignette documents serve these purposes:
 
 1. Verification that the results from JASP are correct by comparing them to sources in literature and other software packages.
 
 2. Documentation of the JASP syntax in R.
 
-Naturally, this leads us to the fact that we can use these files as `vignettes` inside of a jaspModule. With `pkgdown` we can publish the package documentation online and include these verification reports there as well.
+3. Automatic testing of verified results.
 
-The only thing left is to turn these vignettes into tests. `jaspTools` will provide new functionality for creating and maintaining specialized "test vignette" files which can be run as test files in our testing framework.
+The most natural place where to maintain such file is in the modules themselves. Since the first 2 points above imply human readability, the source code will be simply a standard R package vignette with a little sugar on top to automatize testing. With `pkgdown` we can publish the package documentation online and include these verification reports there as well.
+
 
 To illustrate this functionality, we will create a test vignette for the module `jaspTTests`.
 
@@ -42,7 +49,9 @@ To illustrate this functionality, we will create a test vignette for the module 
 
 Here we will implement a test vignette for an independent samples $t$-test analysis from the `jaspTTests` module. You can access the compiled vignette [here](https://kucharssim.github.io/jaspTTests/articles/tests/independentsamplesttest-welch-t-test-example-by-hays-1974.html).
 
-*Note.* The R syntax project will implement wrappers that will make it easy to run a JASP analysis in R. However, this is not yet implemented and so first we pretend that such wrapper is already in place and implement a mock function that approximates how such a wrapper will behave:
+### R analysis wrapper
+
+The R syntax project will implement wrappers that will make it easy to run a JASP analysis in R. However, this is not yet implemented and so first we pretend that such wrapper is already in place and implement a mock function that approximates how such a wrapper will behave:
 
 ```r
 #' Independent Samples T-test
@@ -72,6 +81,8 @@ independentSamplesTTest <- function(data, dependent, groupBy) {
 
 This is a very simple function that accepts a `data.frame` as input, a `character` with the dependent variable(s), and a `factor` that indicates membership to one of the two independent groups. It outputs a simple `list` with a single element `ttest` that contains the "main" table from the JASP analysis.
 
+### Create a test vignette
+
 Now we would like to create a test vignette that verifies whether the `independentSamplesTTest` analysis returns correct output. To do that, `jaspTools` provides the following function which sets up a folder in `vignettes/tests/` and creates a new `.Rmd` file. This `.Rmd` file is generated using a template that prepares the vignette with some content suitable for generating the test vignettes.
 
 ```r
@@ -83,5 +94,265 @@ jaspTools::useTestVignette(
 
 If run interactively in R studio, the file should be automatically opened in a new source code tab. In case the example already exists, it will not overwrite the file but open whatever content it has.
 
-A freshly created vignette looks something like this
+The default template looks like this:
+
+````markdown
+---
+title: "independentSamplesTTest: Welch t-test example by Hays (1974)"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{  }
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<!-- General information about this template: -->
+<!-- Use `purl=FALSE` to disable code chunks that *are not* necessary for unit testing but you *want* to display them in the vignette -->
+<!-- Use `include=FALSE` to disable code chunks that *are* necessary for unit testing but you *do not want* to display them in the vignette -->
+
+```{r, include=FALSE, purl=FALSE}`r ''`
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+This example shows results from `independentSamplesTTest()` and compares them to results obtained using alternative approaches.
+
+<!-- Describe here what is the objective of the analysis (what part of the analysis is of importance) -->
+
+## Data
+
+<!-- Describe here the dataset (where does it come from, what it contains, etc) -->
+
+The data set can be obtained in R as follows:
+
+```{r load-data}`r ''`
+#> Replace the code here to load the data into the `data`.
+data <- data.frame(x = 1:10)
+```
+
+And the data looks like:
+
+```{r show-data, purl=FALSE, eval=TRUE, echo=FALSE}`r ''`
+knitr::kable(x = head(data), caption = "First five rows of the data set.")
+```
+
+## Analysis
+
+<!-- Display results from other analysis programs, and run the JASP analysis here -->
+
+<!-- ### Manual results -->
+
+<!-- ### SPSS results -->
+
+<!-- Screenshots can be added as follows: -->
+<!-- ![Results from SPSS](path/to/the/screenshot.png){#id .class width=50%} -->
+
+
+### Results using R
+
+```{r run-r-analysis, purl=FALSE}`r ''`
+#> Add code below to show how to run the analysis in R (without using jaspTTests::independentSamplesTTest())
+#> Alternatively, disable this section in case the analysis cannot be easily conducted in R without JASP.
+```
+
+### JASP results
+
+The analysis can be run as follows:
+
+```{r run-jasp-analysis}`r ''`
+#> Modify the code below to run the analysis
+set.seed(1)
+results <- jaspTTests::independentSamplesTTest(data = data)
+```
+
+And the relevant output is:
+
+```{r show-jasp-results, purl=FALSE}`r ''`
+#> Add code here to display the correct output, for example:
+#> knitr::kable(results[["mainTable"]])
+```
+
+<!-- Write here unit tests -->
+
+```{r unit-tests, include=FALSE}`r ''`
+testthat::test_that("example works", {
+  testthat::local_edition(3)
+  #> Add code here to specify the tests, for example:
+  #> jaspTools::expect_jasp_table(results[["mainTable"]])
+  #> jaspTools::expect_jasp_plot (results[["mainPlot"]] )
+})
+```
+
+````
+
+Note that the relevant code chunks already contain some placeholder text as well as comments that instruct you what to insert yourself.
+
+Here are the default sections of the `.Rmd` file. It is of course possible to adjust the structure of the vignette to suit a particular example, but overall the vignettes should follow roughly the same logic:
+
+1. The header of the file specifies the title of the vignette and indicates that it should be rendered as a vignette.
+
+2. Below, we have an instruction about the use of `purl` in the code chunks. `jaspTools` uses `knitr::purl` to extract R code from the vignette in order to convert it into a file that can be used for testing. However, the verified report may need to run code that is not supposed to be run during the tests. By specifying `purl=FALSE` in a code chunk we skip that code when generating the test code.
+
+3. Conversely, the option `include` can be used for code chunks that are needed for testing but not needed for the verified report. Setting `include=FALSE` disables code from the verified report but includes it in the tests.
+
+4. **Introduction** section should describe the background of the example. By default it comes with a single sentence about testing the analysis that was specified in `jaspTools::useTestVignette`.
+
+In this example we add the following text:
+
+```markdown
+## Introduction
+
+This example shows results from `independentSamplesTTest()` and compares them to results obtained using alternative approaches.
+
+An example from Hays (1974, pp. 404-407):
+
+> An experimenter working in the area of motivational factors in perception was interested in the effects of deprivation upon the perceived size of objects. Among the studies carried out was one done with orphans, who were compared with nonorphaned children on the basis of the judged size of parental figures viewed at a distance. [...]Now two independent randomly selected groups were used. Sample 1 was a group of orphaned children without foster parents. Sample 2 was a group of children having a normal family with both parents. Both population of children sampled showed the same age level, sex distribution, educational level, and so forth. The question asked by the experimenter was 'Do deprived children tend to judge the parental figures relatively larger than do the nondeprived?' In terms of a null and alternative hypothesis,
+<br>
+H~0~: $\mu$~1~ - $\mu$~2~ $\le 0$
+<br>
+H~1~: $\mu$~1~ - $\mu$~2~ $> 0$.
+<br>
+The $\alpha$ level for significance decided upon was .05.
+```
+
+5. **Data** section should describe the data that will be used for the analysis, and show code how to read the data into R. You can use whatever R code you please for reading the data. If you want to include custom data, you can also use `usethis::use_data` to bundle data with the `jaspModule`, and use `data()` function to load the data back.
+
+In this example the data section looks like follows:
+
+````markdown
+## Data
+
+The actual results provided by Hays (1974) were
+
+*Sample 1:* M~1~ = 1.8; S1~ = .7; N~1~ = 125
+
+*Sample 2:* M~2~ = 1.6; S2~ = .9; N~2~ = 150
+
+**Note**: A data set with these properties has been simulated using R.
+
+The data set can be obtained in R as follows:
+
+```{r load-data}`r ''`
+set.seed(1)
+m1 <- scale(rnorm(125)) * 0.7 + 1.8
+m2 <- scale(rnorm(150)) * 0.9 + 1.6
+data <- data.frame(
+  size   = c(m1, m2), 
+  family = rep(c("no", "yes"), times = c(125, 150))
+)
+```
+
+And the data looks like:
+
+```{r show-data, purl=FALSE, eval=TRUE, echo=FALSE}`r ''`
+knitr::kable(x = head(data), caption = "First five rows of the data set.")
+```
+````
+
+6. **Analysis** section provides the analysis of the data using different methods. By default the template only adds subsection *Results using R* and *JASP results*. 
+    - **Results using R** subsection is meant to carry out the analysis *without using a JASP package*. This is important so that we can show that you can obtain the same results in R outside of JASP. This code should not be called during testing, that is why we use `purl=FALSE`.
+
+    - **JASP results** subsection is used for demonstrating how to run the analysis using the JASP analysis wrapper.
+    
+    - **Additional subsections** such as "Manual results", "SPSS results" can be also added if they are relevant to the example.
+    
+In this example the analysis section looks as follows:
+
+````markdown
+## Analysis
+
+### Manual results
+
+Calculations by hand can be found in Hays, 1974, pp. 404-407.
+
+Result: $t = 2.11$
+
+Significant (two-tailed test) for $\alpha = .05$ or less
+
+### Results using R
+
+```{r run-r-analysis, purl=FALSE}`r ''`
+t.test(formula = size~family, data = data)
+```
+
+### JASP results
+
+The analysis can be run with JASP as follows:
+
+```{r run-jasp-analysis}`r ''`
+set.seed(1)
+results <- jaspTTests::independentSamplesTTest(
+  data      = data, 
+  dependent = "size", 
+  groupBy   = "family"
+)
+```
+
+And the relevant output is:
+
+```{r show-jasp-results, purl=FALSE}`r ''`
+knitr::kable(results[["ttest"]])
+```
+````
+    
+7. Below is the code used for unit testing. You can use the setup with `testthat::test_that` as if you are writing standard test files. We set `include=FALSE` to disable this code in the verified report. A couple of remarks:
+    - `testthat::local_edition(3)` is suggested by default so that we can use snapshot testing. We set it only locally because most of the other tests currently implemented in modules in JASP follow the conventions from `testthat` edition 2. However, you can also switch to the 3rd edition of `testthat` globally for the whole module by running `usethis::use_testthat(edition=3)`. Then you do not need to set the edition locally.
+    
+    - `jaspTools` will provide two new functions for testing tables and plots: `expect_jasp_table()` and `expect_jasp_plot()`. These functions will rely on snapshot testing [snapshot testing](https://testthat.r-lib.org/articles/snapshotting.html). Thus, you do not need any `jaspTools::makeTestTable` anymore to generate results to compare the JASP output to, this will be generated automatically.
+    
+The code for this example can look like this:
+
+````markdown
+<!-- Write here unit tests -->
+
+```{r unit-tests, include=FALSE}`r ''`
+testthat::test_that("Welch t-test example by Hays (1974) works", {
+  testthat::local_edition(3)
+  jaspTools::expect_jasp_table(results[["ttest"]])
+})
+```
+````
+
+### Run the vignette
+
+If you are in R studio, you can click on the `Knit` button to preview the verified report. Once you are happy with how it looks you are ready to test the code.
+
+You can run 
+
+```r
+jaspTools::testVignettes()
+```
+
+to run tests in all vignettes implemented in the module. Alternatively, you can use `jaspTools::testVignette()` which allows you to test only one specific vignette; you just need to specify the name of the vignette file.
+
+If you used snapshot testing, the first time the tests run `testthat` does not have anything to test the results against. `testthat` will issue a warning about this and generates a new snapshot:
+
+```
+Warning (test-vignette-independentsamplesttest-welch-t-test-example-by-hays-1974.R:30:3): Welch t-test example by Hays (1974) works
+Adding new snapshot:
+  dependent           t          df             p
+1      size 2.071676976 271.7615354 0.03923898306
+```
+
+The snapshots are themselves markdown files under `tests/testthat/_snaps/`. You should check results in these snapshots to confirm that they contain the results that you want to verify.
+
+The next time you run `testVignettes`, you should get standard `testthat` output:
+
+```
+✔ | F W  S  OK | Context
+✔ |          1 | vignette-independentsamplesttest-welch-t-test-example-by-hays-1974                  
+
+══ Results ══════════════════════════════════════════════════════════════════════════════════════════
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 1 ]
+```
+
+### Runing tests all together
+
+`jaspTools::testVignettes()` only runs tests in the vignettes, and `jaspTools::testAll()` tests only tests in the `tests/testthat/` folder. `jaspTools::testVignette` tests a single vignette, `jaspTools::testVignettes(<analysisName>)` tests all vignettes associated with a specific JASP analysis, and `jaspTools::testAnalysis(<analysisName>)` tests all tests in the `tests/testthat/` folder associated with a specific JASP analysis.
+
+This is clearly a mess, so we will make it even more messy by introducing another function `jaspTools::testModule()`. This function will make it easier to call (by default) all tests in the module, or control what to test with additional arguments, e.g., `jaspTools::testModule(vignettes=FALSE)`, `jaspTools::testModule(analysis="independentSamplesTTest")`, etc.
 

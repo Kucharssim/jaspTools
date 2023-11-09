@@ -62,7 +62,7 @@ knitr::kable(x = head(data), caption = "First five rows of the data set.")
 
 ### JASP results
 
-The analysis can be run as follows:
+The analysis can be run with JASP as follows:
 
 ```{r run-jasp-analysis}
 #> Modify the code below to run the analysis
